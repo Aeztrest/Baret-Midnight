@@ -1,0 +1,43 @@
+name: Deploy merchant-spend-policy to Midnight preprod testnet
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Compact toolchain
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Compile contract WITH real ZK proving keys
+        working-directory: contracts/merchant-spend-policy
+        run: |
+          rm -rf managed
+          compact compile src/merchant-spend-policy.compact managed/merchant-spend-policy
+          find managed -type f
+
+      - name: Install deploy script dependencies
+        working-directory: contracts/merchant-spend-policy/deploy
+        run: npm install
+
+      - name: Deploy to preprod
+        working-directory: contracts/merchant-spend-policy/deploy
+        run: npm run deploy:preprod
+        env:
+          DEBUG_LEVEL: info
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-logs
+          path: contracts/merchant-spend-policy/deploy/logs/**

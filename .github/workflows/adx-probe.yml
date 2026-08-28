@@ -2,6 +2,10 @@ name: ADX probe (real ZK proof generation)
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/adx-probe.yml"
+      - "contracts/merchant-spend-policy/src/**"
 
 jobs:
   compile-with-real-proofs:

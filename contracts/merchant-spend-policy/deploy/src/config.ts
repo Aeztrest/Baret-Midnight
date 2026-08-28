@@ -1,0 +1,52 @@
+import path from 'node:path';
+import { EnvironmentConfiguration, RemoteTestEnvironment, TestEnvironment } from '@midnight-ntwrk/testkit-js';
+import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+import { Logger } from 'pino';
+
+export interface Config {
+  readonly privateStateStoreName: string;
+  readonly logDir: string;
+  readonly zkConfigPath: string;
+  getEnvironment(logger: Logger): TestEnvironment;
+  readonly generateDust: boolean;
+}
+
+export const currentDir = path.resolve(new URL(import.meta.url).pathname, '..');
+
+export class PreprodRemoteConfig implements Config {
+  getEnvironment(logger: Logger): TestEnvironment {
+    setNetworkId('preprod');
+    return new PreprodTestEnvironment(logger);
+  }
+  privateStateStoreName = 'merchant-spend-policy-private-state';
+  logDir = path.resolve(currentDir, '..', 'logs', 'preprod-remote', `${new Date().toISOString()}.log`);
+  zkConfigPath = path.resolve(currentDir, '..', '..', 'managed', 'merchant-spend-policy');
+  generateDust = true;
+}
+
+export class PreprodTestEnvironment extends RemoteTestEnvironment {
+  constructor(logger: Logger) {
+    super(logger);
+  }
+
+  private getProofServerUrl(): string {
+    const container = this.proofServerContainer as { getUrl(): string } | undefined;
+    if (!container) {
+      throw new Error('Proof server container is not available.');
+    }
+    return container.getUrl();
+  }
+
+  getEnvironmentConfiguration(): EnvironmentConfiguration {
+    return {
+      walletNetworkId: 'preprod',
+      networkId: 'preprod',
+      indexer: 'https://indexer.preprod.midnight.network/api/v4/graphql',
+      indexerWS: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
+      node: 'https://rpc.preprod.midnight.network',
+      nodeWS: 'wss://rpc.preprod.midnight.network',
+      faucet: 'https://midnight-tmnight-preprod.nethermind.dev/',
+      proofServer: this.getProofServerUrl(),
+    };
+  }
+}
