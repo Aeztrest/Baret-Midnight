@@ -31,7 +31,9 @@ export const deployHeadless = async (config: Config, testEnv: TestEnvironment, l
   const envConfiguration = await testEnv.start();
   logger.info(`Environment started: ${JSON.stringify(envConfiguration)}`);
 
-  const seed = toHex(randomBytes(32));
+  // Reuse a fixed wallet across runs (set via secret) so a manually-funded address stays funded;
+  // falls back to a fresh random wallet if unset.
+  const seed = process.env.DEPLOY_WALLET_SEED ?? toHex(randomBytes(32));
   const walletProvider = await MidnightWalletProvider.build(logger, envConfiguration, seed);
 
   try {

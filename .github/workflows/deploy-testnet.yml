@@ -42,6 +42,7 @@ jobs:
         run: npm run deploy:preprod
         env:
           DEBUG_LEVEL: info
+          DEPLOY_WALLET_SEED: ${{ secrets.DEPLOY_WALLET_SEED }}
 
       - name: Upload logs
         if: always()
