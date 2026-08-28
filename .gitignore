@@ -1,5 +1,6 @@
 node_modules/
 apps/extension/dist/
 apps/showcase/dist/
+apps/showcase/public/baret-extension.zip
 *.log
 .DS_Store

@@ -27,7 +27,7 @@ async function savePolicy(site: string, policy: StoredPolicy) {
 
 async function init() {
   const site = await currentSite();
-  document.getElementById("site")!.textContent = site || "(bilinmeyen site)";
+  document.getElementById("site")!.textContent = site || "(unknown site)";
   if (!site) return;
 
   const existing = await loadPolicy(site);
@@ -37,8 +37,8 @@ async function init() {
 
   function renderStatus(policy: StoredPolicy | null) {
     statusEl.textContent = policy
-      ? `Durum: ${policy.status} — bu dönem harcanan: ${policy.spentThisPeriod}`
-      : "Bu site için henüz politika yok.";
+      ? `Status: ${policy.status} — spent this period: ${policy.spentThisPeriod}`
+      : "No policy for this site yet.";
   }
 
   if (existing) {

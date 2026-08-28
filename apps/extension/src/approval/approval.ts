@@ -7,7 +7,7 @@ async function load() {
   const req: GetPendingRequestMessage = { type: "get-pending-request", requestId };
   const pending = (await chrome.runtime.sendMessage(req)) as PendingApproval | null;
   if (!pending) {
-    document.getElementById("method")!.textContent = "İstek bulunamadı";
+    document.getElementById("method")!.textContent = "Request not found";
     return;
   }
 
@@ -16,7 +16,7 @@ async function load() {
 
   const container = document.getElementById("findings")!;
   if (pending.findings.length === 0) {
-    container.innerHTML = '<div id="empty">Bilinen bir risk bulunamadı, ama işlem tanınmadığı için onayına sunuluyor.</div>';
+    container.innerHTML = '<div id="empty">No known risk found, but this transaction is unrecognized so it needs your approval.</div>';
   } else {
     for (const f of pending.findings) {
       const div = document.createElement("div");

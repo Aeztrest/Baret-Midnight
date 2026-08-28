@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Baret for Midnight (dev)",
   "version": "0.1.0",
-  "description": "Midnight dApp Connector için imza öncesi risk analizi ve harcama politikası güvenlik duvarı.",
+  "description": "Pre-signature risk analysis and spending-policy firewall for the Midnight dApp Connector.",
   "permissions": ["storage"],
   "host_permissions": ["<all_urls>"],
   "background": {

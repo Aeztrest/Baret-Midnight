@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @baret-midnight/showcase build",
+  "buildCommand": "pnpm --filter @baret-midnight/extension build && node apps/showcase/scripts/bundle-extension.mjs && pnpm --filter @baret-midnight/showcase build",
   "outputDirectory": "apps/showcase/dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

@@ -4,6 +4,8 @@ import HomePage from "./pages/HomePage";
 import DemoPage from "./pages/DemoPage";
 import DocsPage from "./pages/DocsPage";
 import InstallPage from "./pages/InstallPage";
+import ShowcasePage from "./pages/ShowcasePage";
+import ScenarioPage from "./pages/ScenarioPage";
 
 export default function App() {
   return (
@@ -13,6 +15,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/demo" element={<DemoPage />} />
+          <Route path="/showcase" element={<ShowcasePage />} />
+          <Route path="/showcase/:slug" element={<ScenarioPage />} />
           <Route path="/docs" element={<DocsPage />} />
           <Route path="/install" element={<InstallPage />} />
         </Routes>

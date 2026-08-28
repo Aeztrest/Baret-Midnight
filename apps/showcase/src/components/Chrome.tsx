@@ -38,6 +38,7 @@ function useTheme() {
 const NAV_LINKS = [
   { to: "/", label: "Home" },
   { to: "/demo", label: "Live demo" },
+  { to: "/showcase", label: "Threat gallery" },
   { to: "/docs", label: "Docs" },
   { to: "/install", label: "Install" },
 ];

@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Container, Eyebrow } from "../components/Chrome";
+import { SCENARIOS } from "../scenarios";
 
 const DETECTORS = [
   "Blind sign risk",
@@ -40,11 +41,45 @@ export default function HomePage() {
       <Hero />
       <DetectorMarquee />
       <Pillars />
+      <ShowcaseStrip />
       <DisclosureSection />
       <ComparisonSection />
       <FaqSection />
       <FinalCta />
     </div>
+  );
+}
+
+function ShowcaseStrip() {
+  return (
+    <section className="px-5 py-20 sm:px-8">
+      <Container>
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <Eyebrow>Threat gallery</Eyebrow>
+            <h2 className="font-display text-2xl font-semibold uppercase tracking-tight sm:text-3xl">
+              Five sites. Five different risks.
+            </h2>
+          </div>
+          <Link to="/showcase" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+            See all <ArrowRight size={14} />
+          </Link>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {SCENARIOS.map((s) => (
+            <Link
+              key={s.slug}
+              to={`/showcase/${s.slug}`}
+              className="rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50"
+            >
+              <div className="font-mono text-[10px] uppercase tracking-wider text-muted">{s.tag}</div>
+              <div className="mt-1 font-semibold">{s.siteName}</div>
+              <div className="mt-2 text-xs text-amber-600 dark:text-amber-400">{s.threat}</div>
+            </Link>
+          ))}
+        </div>
+      </Container>
+    </section>
   );
 }
 

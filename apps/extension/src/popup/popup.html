@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>Baret</title>
@@ -18,22 +18,22 @@
   </style>
 </head>
 <body>
-  <h1>Baret — Site Politikası</h1>
+  <h1>Baret — Site Policy</h1>
   <div class="site" id="site"></div>
 
-  <label>İşlem başı limit (cap per tx)</label>
+  <label>Cap per transaction</label>
   <input id="capPerTx" type="number" min="0" />
 
-  <label>Günlük limit (cap per day)</label>
+  <label>Cap per day</label>
   <input id="capPerDay" type="number" min="0" />
 
   <div>
-    <button id="save">Kaydet</button>
-    <button id="pause">Duraklat</button>
-    <button id="revoke">İptal Et</button>
+    <button id="save">Save</button>
+    <button id="pause">Pause</button>
+    <button id="revoke">Revoke</button>
   </div>
   <div id="status"></div>
-  <div class="note">Not: pause/revoke şu an yalnızca yerel politika kaydını günceller; testnet'e gerçek circuit çağrısı Faz 6'da (ADX destekli ortam netleşince) bağlanacak.</div>
+  <div class="note">Note: pause/revoke currently only update the local policy record; a real on-chain circuit call will be wired up once real testnet deployment succeeds.</div>
 
   <script type="module" src="./popup.js"></script>
 </body>
