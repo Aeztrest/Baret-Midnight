@@ -1,0 +1,113 @@
+pragma language_version 0.26;
+
+import CompactStandardLibrary;
+
+// Baret'in tüccar harcama politikası sözleşmesi. Bkz. docs/01-feature-spec.md §2.
+//
+// Bilinen sınırlama: gün-içi harcama takibi (spentThisPeriod/periodStart) şu an
+// witness ile sağlanan (currentTime) off-chain bir saate dayanıyor. Bu, ownPublicKey()
+// tuzağına benzer şekilde prover tarafından manipüle edilebilir bir girdidir.
+// Midnight'ın kernel/ledger seviyesinde güvenilir bir on-chain zaman kaynağı
+// sunup sunmadığı doğrulanana kadar bu bilinen bir açık nokta olarak kalır
+// (bkz. Faz 2 TODO).
+
+export enum PolicyStatus { ACTIVE, PAUSED, REVOKED }
+
+export ledger status: PolicyStatus;
+export ledger ownerCommitment: Bytes<32>;
+export ledger signerCommitment: Bytes<32>;
+export ledger merchant: Bytes<32>;
+export ledger capPerTx: Uint<64>;
+export ledger capPerDay: Uint<64>;
+export ledger mandateSeconds: Uint<64>;
+export ledger periodStart: Uint<64>;
+export ledger spentThisPeriod: Uint<64>;
+
+constructor(
+  ownerCommitment_: Bytes<32>,
+  signerCommitment_: Bytes<32>,
+  merchant_: Bytes<32>,
+  capPerTx_: Uint<64>,
+  capPerDay_: Uint<64>,
+  mandateSeconds_: Uint<64>,
+  startTime_: Uint<64>
+) {
+  status = PolicyStatus.ACTIVE;
+  ownerCommitment = disclose(ownerCommitment_);
+  signerCommitment = disclose(signerCommitment_);
+  merchant = disclose(merchant_);
+  capPerTx = disclose(capPerTx_);
+  capPerDay = disclose(capPerDay_);
+  mandateSeconds = disclose(mandateSeconds_);
+  periodStart = disclose(startTime_);
+  spentThisPeriod = 0;
+}
+
+witness ownerSecretKey(): Bytes<32>;
+witness signerSecretKey(): Bytes<32>;
+witness currentTime(): Uint<64>;
+
+export circuit ownerCommitmentOf(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "baret:owner:"), sk]);
+}
+
+export circuit signerCommitmentOf(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "baret:signer:"), sk]);
+}
+
+circuit assertOwner(): [] {
+  assert(
+    ownerCommitmentOf(disclose(ownerSecretKey())) == ownerCommitment,
+    "Not the policy owner"
+  );
+}
+
+export circuit setPolicy(
+  newCapPerTx: Uint<64>,
+  newCapPerDay: Uint<64>,
+  newMandateSeconds: Uint<64>
+): [] {
+  assertOwner();
+  assert(status != PolicyStatus.REVOKED, "Policy is revoked");
+  capPerTx = disclose(newCapPerTx);
+  capPerDay = disclose(newCapPerDay);
+  mandateSeconds = disclose(newMandateSeconds);
+}
+
+export circuit pause(): [] {
+  assertOwner();
+  assert(status == PolicyStatus.ACTIVE, "Policy is not active");
+  status = PolicyStatus.PAUSED;
+}
+
+export circuit resume(): [] {
+  assertOwner();
+  assert(status == PolicyStatus.PAUSED, "Policy is not paused");
+  status = PolicyStatus.ACTIVE;
+}
+
+export circuit revoke(): [] {
+  assertOwner();
+  assert(status != PolicyStatus.REVOKED, "Policy already revoked");
+  status = PolicyStatus.REVOKED;
+}
+
+export circuit authorizeSpend(amount: Uint<64>): [] {
+  assert(
+    signerCommitmentOf(disclose(signerSecretKey())) == signerCommitment,
+    "Not an authorized signer"
+  );
+  assert(status == PolicyStatus.ACTIVE, "Policy is not active");
+  assert(amount <= capPerTx, "Amount exceeds per-transaction cap");
+
+  const now = disclose(currentTime());
+  assert(now >= periodStart, "Clock witness moved backwards");
+
+  if (now - periodStart >= 86400) {
+    periodStart = now;
+    spentThisPeriod = 0;
+  }
+
+  assert(spentThisPeriod + amount <= capPerDay, "Amount exceeds per-day cap");
+  spentThisPeriod = disclose((spentThisPeriod + amount) as Uint<64>);
+}

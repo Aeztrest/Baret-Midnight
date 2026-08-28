@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Mock Midnight dApp (Baret spike testi)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 24px; max-width: 640px; }
+    button { display: block; margin-bottom: 10px; padding: 8px 14px; }
+    pre { background: #eee; padding: 12px; white-space: pre-wrap; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <h1>Mock Midnight dApp</h1>
+  <p>Bu sayfa, gerçek Lace cüzdanının <code>window.midnight.lace</code>'e geç (1 sn sonra) atama yaptığı senaryoyu simüle eder. Baret uzantısının bunu doğru şekilde sarmalayıp sarmalamadığını test eder.</p>
+
+  <button id="btn-enable">lace.enable()</button>
+  <button id="btn-sign-unknown">lace.signData({...bilinmeyen circuit...})</button>
+  <button id="btn-sign-known">lace.signData({...bilinen, limit içi...})</button>
+
+  <pre id="log"></pre>
+
+  <script>
+    const log = (msg) => {
+      document.getElementById("log").textContent += msg + "\n";
+    };
+
+    // Gerçek cüzdanın document_start'tan SONRA, gecikmeli inject ettiği en zor senaryoyu simüle et.
+    setTimeout(() => {
+      window.midnight.lace = {
+        async enable() {
+          return { connected: true };
+        },
+        async signData(payload) {
+          return { signature: "MOCK_SIGNATURE", echo: payload };
+        },
+        async balanceTransaction(tx) {
+          return { balanced: true, echo: tx };
+        },
+        async submitTransaction(tx) {
+          return { txId: "MOCK_TX_ID", echo: tx };
+        },
+      };
+      log("[mock-wallet] window.midnight.lace enjekte edildi (gecikmeli).");
+    }, 1000);
+
+    document.getElementById("btn-enable").addEventListener("click", async () => {
+      try {
+        const res = await window.midnight.lace.enable();
+        log("enable() OK: " + JSON.stringify(res));
+      } catch (e) {
+        log("enable() HATA: " + e.message);
+      }
+    });
+
+    document.getElementById("btn-sign-unknown").addEventListener("click", async () => {
+      try {
+        const res = await window.midnight.lace.signData({
+          contractAddress: "0xUNKNOWN",
+          circuitId: "authorizeSpend",
+          amount: 99999,
+        });
+        log("signData(unknown) OK: " + JSON.stringify(res));
+      } catch (e) {
+        log("signData(unknown) HATA: " + e.message);
+      }
+    });
+
+    document.getElementById("btn-sign-known").addEventListener("click", async () => {
+      try {
+        const res = await window.midnight.lace.signData({
+          contractAddress: "0xPOLICY",
+          circuitId: "authorizeSpend",
+          amount: 5,
+        });
+        log("signData(known) OK: " + JSON.stringify(res));
+      } catch (e) {
+        log("signData(known) HATA: " + e.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "@baret-midnight/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "start": "tsx src/index.ts",
+    "test": "echo \"no tests yet\""
+  },
+  "dependencies": {
+    "@baret-midnight/merchant-spend-policy": "workspace:*",
+    "@baret-midnight/policy-engine": "workspace:*",
+    "fastify": "^4.28.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

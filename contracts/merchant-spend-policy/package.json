@@ -1,0 +1,18 @@
+{
+  "name": "@baret-midnight/merchant-spend-policy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/simulator.ts",
+  "types": "./src/simulator.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "0.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

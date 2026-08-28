@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Baret — İşlem Onayı</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #0f1115; color: #e6e6e6; }
+    h1 { font-size: 16px; margin: 0 0 4px; }
+    .site { color: #9aa4b2; font-size: 13px; margin-bottom: 12px; }
+    .finding { border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 13px; }
+    .finding.critical { background: #3a1414; border: 1px solid #7a2a2a; }
+    .finding.warning { background: #3a2f14; border: 1px solid #7a5f2a; }
+    .finding.info { background: #14233a; border: 1px solid #2a4f7a; }
+    .finding .title { font-weight: 600; margin-bottom: 2px; }
+    .actions { display: flex; gap: 8px; margin-top: 16px; }
+    button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 14px; cursor: pointer; }
+    #approve { background: #2a7a4f; color: white; }
+    #reject { background: #7a2a2a; color: white; }
+    #empty { color: #9aa4b2; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1 id="method">İşlem</h1>
+  <div class="site" id="site"></div>
+  <div id="findings"></div>
+  <div class="actions">
+    <button id="reject">Reddet</button>
+    <button id="approve">Onayla</button>
+  </div>
+  <script type="module" src="./approval.js"></script>
+</body>
+</html>

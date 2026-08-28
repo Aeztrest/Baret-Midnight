@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Baret</title>
+  <style>
+    body { font-family: system-ui, sans-serif; width: 320px; padding: 14px; background: #0f1115; color: #e6e6e6; }
+    h1 { font-size: 15px; margin: 0 0 2px; }
+    .site { color: #9aa4b2; font-size: 12px; margin-bottom: 12px; }
+    label { display: block; font-size: 12px; color: #9aa4b2; margin-top: 8px; }
+    input { width: 100%; box-sizing: border-box; padding: 6px 8px; border-radius: 6px; border: 1px solid #2a2f3a; background: #1a1d24; color: #e6e6e6; margin-top: 2px; }
+    button { margin-top: 10px; margin-right: 6px; padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; }
+    #save { background: #2a4f7a; color: white; }
+    #pause { background: #7a5f2a; color: white; }
+    #revoke { background: #7a2a2a; color: white; }
+    #status { font-size: 12px; margin-top: 10px; color: #9aa4b2; }
+    .note { font-size: 11px; color: #6a7382; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Baret — Site Politikası</h1>
+  <div class="site" id="site"></div>
+
+  <label>İşlem başı limit (cap per tx)</label>
+  <input id="capPerTx" type="number" min="0" />
+
+  <label>Günlük limit (cap per day)</label>
+  <input id="capPerDay" type="number" min="0" />
+
+  <div>
+    <button id="save">Kaydet</button>
+    <button id="pause">Duraklat</button>
+    <button id="revoke">İptal Et</button>
+  </div>
+  <div id="status"></div>
+  <div class="note">Not: pause/revoke şu an yalnızca yerel politika kaydını günceller; testnet'e gerçek circuit çağrısı Faz 6'da (ADX destekli ortam netleşince) bağlanacak.</div>
+
+  <script type="module" src="./popup.js"></script>
+</body>
+</html>
