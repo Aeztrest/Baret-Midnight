@@ -7,7 +7,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "deploy:preprod": "node --experimental-specifier-resolution=node --loader ts-node/esm src/launcher/preprod.ts"
+    "deploy:preprod": "tsx src/launcher/preprod.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/node": "^25.3.0",
     "@types/ws": "^8.18.1",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
     "typescript": "^5.9.3"
   }
 }
