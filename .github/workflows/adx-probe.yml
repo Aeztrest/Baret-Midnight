@@ -14,7 +14,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: CPU flags
-        run: grep -o 'adx' /proc/cpuinfo | head -1 && echo "ADX: present" || echo "ADX: NOT present"
+        run: |
+          grep -o 'adx' /proc/cpuinfo | head -1 && echo "ADX: present" || echo "ADX: NOT present"
 
       - name: Install Compact toolchain
         run: |
