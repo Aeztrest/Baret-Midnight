@@ -19,7 +19,13 @@ export class PreprodRemoteConfig implements Config {
     return new PreprodTestEnvironment(logger);
   }
   privateStateStoreName = 'merchant-spend-policy-private-state';
-  logDir = path.resolve(currentDir, '..', 'logs', 'preprod-remote', `${new Date().toISOString()}.log`);
+  logDir = path.resolve(
+    currentDir,
+    '..',
+    'logs',
+    'preprod-remote',
+    `${new Date().toISOString().replace(/:/g, '-')}.log`,
+  );
   zkConfigPath = path.resolve(currentDir, '..', '..', 'managed', 'merchant-spend-policy');
   generateDust = true;
 }
