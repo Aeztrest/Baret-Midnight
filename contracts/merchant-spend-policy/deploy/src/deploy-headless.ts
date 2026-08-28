@@ -37,13 +37,17 @@ export const deployHeadless = async (config: Config, testEnv: TestEnvironment, l
   try {
     await walletProvider.start();
 
-    const unshieldedState = await waitForUnshieldedFunds(
-      logger,
-      walletProvider.wallet,
-      envConfiguration,
-      unshieldedToken(),
-      /* fundFromFaucet */ true,
+    const FAUCET_TIMEOUT_MS = 3 * 60_000;
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(
+        () => reject(new Error(`Timed out after ${FAUCET_TIMEOUT_MS}ms waiting for faucet funds`)),
+        FAUCET_TIMEOUT_MS,
+      ),
     );
+    const unshieldedState = await Promise.race([
+      waitForUnshieldedFunds(logger, walletProvider.wallet, envConfiguration, unshieldedToken(), /* fundFromFaucet */ true),
+      timeout,
+    ]);
     const nightBalance = unshieldedState.balances[unshieldedToken().raw];
     logger.info(`NIGHT balance after funding: ${nightBalance}`);
     if (!nightBalance) {
