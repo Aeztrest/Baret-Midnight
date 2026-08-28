@@ -26,6 +26,12 @@ jobs:
           compact compile src/merchant-spend-policy.compact managed/merchant-spend-policy
           find managed -type f
 
+      - name: Install pnpm workspace deps (provides compact-runtime to the generated contract)
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.0.0 --activate
+          pnpm install --frozen-lockfile
+
       - name: Install deploy script dependencies
         working-directory: contracts/merchant-spend-policy/deploy
         run: npm install
