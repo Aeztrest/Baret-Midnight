@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 250 251 253;
+  --foreground: 15 18 26;
+  --card: 255 255 255;
+  --border: 224 228 235;
+  --secondary: 240 242 246;
+  --primary: 79 70 229;
+  --primary-foreground: 255 255 255;
+  --muted: 108 117 133;
+}
+
+.dark {
+  --background: 8 9 13;
+  --foreground: 230 232 238;
+  --card: 15 17 24;
+  --border: 32 36 46;
+  --secondary: 22 25 33;
+  --primary: 129 140 248;
+  --primary-foreground: 12 12 20;
+  --muted: 148 155 170;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-feature-settings: "cv11", "ss01";
+}

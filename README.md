@@ -30,6 +30,7 @@ generated locally or delegated to a remote proof server.
 | `packages/policy-engine` | Chain-aware risk detectors (blind-sign, unlimited-approval, disclosure, agentic-payment, etc.) |
 | `apps/server` | Fastify service: `/v1/analyze` (risk analysis) and `/x402/*` (a self-hosted Midnight-native x402 facilitator) |
 | `apps/extension` | MV3 browser extension: intercepts `window.midnight.lace` calls, shows a pre-sign approval screen, manages per-site policies |
+| `apps/showcase` | Marketing/docs site with a live, in-browser risk analyzer running the real `policy-engine` package |
 
 ## Quick start
 
@@ -38,10 +39,12 @@ pnpm install
 pnpm -r test          # runs every package's test suite
 cd apps/server && pnpm dev     # http://127.0.0.1:8787
 cd apps/extension && node build.mjs   # builds ./dist, load unpacked at chrome://extensions
+cd apps/showcase && pnpm dev   # http://localhost:5175
 ```
 
 Deployment: `Dockerfile` + `render.yaml` at the repo root deploy `apps/server` as a Render web
-service.
+service; `vercel.json` deploys `apps/showcase` as a static Vercel site (set the Vercel project's
+root directory to the repo root, not `apps/showcase`, so the pnpm workspace install works).
 
 ## Known limitation (hardware)
 

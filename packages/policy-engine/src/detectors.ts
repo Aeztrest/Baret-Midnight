@@ -4,18 +4,18 @@ function circuitKey(intent: TransactionIntent): string {
   return `${intent.contractAddress}:${intent.circuitId}`;
 }
 
-/** Baret: "Blind sign riski" → bilinmeyen contract+circuit kombinasyonu uyarısı. */
+/** Blind sign risk: flags an unknown contract+circuit combination. */
 export const blindSignRisk: Detector = (intent, ctx) => {
   if (ctx.knownCircuits.has(circuitKey(intent))) return null;
   return {
     id: "blind-sign",
     severity: "critical",
-    title: "Bilinmeyen sözleşme çağrısı",
-    detail: `${intent.contractAddress} adresindeki "${intent.circuitId}" circuit'i onaylı listede değil. Ne yaptığını doğrulamadan imzalama.`,
+    title: "Unknown contract call",
+    detail: `The circuit "${intent.circuitId}" at ${intent.contractAddress} is not on the approved list. Don't sign without verifying what it does.`,
   };
 };
 
-/** Baret: "Approval drainer" → sınırsız/aşırı yüksek harcama yetkisi isteyen çağrılar. */
+/** Unlimited approval risk: flags calls requesting unlimited/excessive spend authority. */
 export const unlimitedApprovalRisk: Detector = (intent) => {
   if (intent.circuitId !== "setPolicy") return null;
   const cap = intent.args.newCapPerTx;
@@ -25,26 +25,26 @@ export const unlimitedApprovalRisk: Detector = (intent) => {
     return {
       id: "unlimited-approval",
       severity: "critical",
-      title: "Sınırsıza yakın harcama limiti isteniyor",
-      detail: `Bu politika işlem başına ${cap} birime kadar harcama yetkisi istiyor. Bu, fiilen sınırsız onay demektir.`,
+      title: "Near-unlimited spending cap requested",
+      detail: `This policy requests spending authority of up to ${cap} units per transaction — effectively unlimited approval.`,
     };
   }
   return null;
 };
 
-/** Baret: "Agentic x402" → bir AI ajanın kullanıcı onayı olmadan mikro-ödeme yapması. */
+/** Agentic x402 risk: an AI agent making a micro-payment without direct user approval. */
 export const agenticX402Risk: Detector = (intent) => {
   if (intent.initiator !== "agent") return null;
   if (intent.circuitId !== "authorizeSpend") return null;
   return {
     id: "agentic-x402",
     severity: "warning",
-    title: "Otonom ajan ödemesi",
-    detail: "Bu ödeme bir insan tarafından değil, otomatik bir ajan tarafından tetiklendi. Politika limitleri içinde kalsa bile gözden geçir.",
+    title: "Autonomous agent payment",
+    detail: "This payment was triggered by an automated agent, not a human. Review it even if it stays within policy limits.",
   };
 };
 
-/** Baret: "Denge değişimleri analizi" → simüle edilmiş bakiye deltasını özetler. */
+/** Balance delta summary: summarizes the simulated balance change. */
 export const balanceDeltaSummary: Detector = (_intent, ctx) => {
   const meaningful = ctx.balanceDeltas.filter((d) => d.before !== d.after);
   if (meaningful.length === 0) return null;
@@ -54,23 +54,23 @@ export const balanceDeltaSummary: Detector = (_intent, ctx) => {
   return {
     id: "balance-delta",
     severity: "info",
-    title: "Bakiye değişimi",
+    title: "Balance change",
     detail: lines,
   };
 };
 
-/** Baret: "Kontrat etkileşimleri izleme" → zincirleme contract-to-contract çağrıları. */
+/** Contract interaction trace: chained contract-to-contract calls. */
 export const contractInteractionTrace: Detector = (_intent, ctx) => {
   if (ctx.calledContracts.length === 0) return null;
   return {
     id: "contract-interactions",
     severity: "info",
-    title: "Zincirleme sözleşme çağrıları",
-    detail: `Bu işlem şu sözleşmeleri de çağırıyor: ${ctx.calledContracts.join(", ")}`,
+    title: "Chained contract calls",
+    detail: `This transaction also calls: ${ctx.calledContracts.join(", ")}`,
   };
 };
 
-/** YENİ (Midnight'a özgü): disclose() ile açığa çıkan witness verisi uyarısı. */
+/** NEW (Midnight-specific): witness data disclosed to the public ledger via disclose(). */
 export const disclosureRisk: Detector = (intent) => {
   const witnessDisclosures = intent.disclosures.filter((d) => d.source === "witness");
   if (witnessDisclosures.length === 0) return null;
@@ -78,23 +78,23 @@ export const disclosureRisk: Detector = (intent) => {
   return {
     id: "disclosure",
     severity: "warning",
-    title: "Private veri ifşa ediliyor",
-    detail: `Bu işlem şu private (witness) alanları public ledger'a yazıyor: ${fields}. İmzaladıktan sonra bu bilgi herkese açık olur.`,
+    title: "Private data is being disclosed",
+    detail: `This transaction writes the following private (witness) fields to the public ledger: ${fields}. Once signed, this information becomes public.`,
   };
 };
 
-/** YENİ (Midnight'a özgü): proof lokal mi yoksa delege mi üretiliyor bildirimi. */
+/** NEW (Midnight-specific): notice for whether the proof is generated locally or delegated. */
 export const provingModeNotice: Detector = (intent) => {
   if (intent.provingMode !== "delegated") return null;
   return {
     id: "proving-mode",
     severity: "info",
-    title: "Kanıt üretimi devredildi",
-    detail: "Bu işlemin ZK kanıtı senin cihazında değil, harici bir proof server tarafından üretilecek.",
+    title: "Proof generation delegated",
+    detail: "This transaction's ZK proof will be generated by an external proof server, not on your own device.",
   };
 };
 
-/** Politika bazlı harcama limiti kontrolü (per-tx / per-day cap). */
+/** Policy-based spend limit check (per-transaction / per-day cap). */
 export const spendPolicyLimitRisk: Detector = (intent, ctx) => {
   if (intent.circuitId !== "authorizeSpend" || !ctx.policy) return null;
   const amount = intent.args.amount;
@@ -105,24 +105,24 @@ export const spendPolicyLimitRisk: Detector = (intent, ctx) => {
     return {
       id: "policy-inactive",
       severity: "critical",
-      title: "Politika aktif değil",
-      detail: `Politika durumu "${policy.status}". Bu işlem zaten sözleşme tarafından reddedilecek.`,
+      title: "Policy is not active",
+      detail: `Policy status is "${policy.status}". This transaction would already be rejected by the contract.`,
     };
   }
   if (BigInt(amount) > policy.capPerTx) {
     return {
       id: "over-per-tx-cap",
       severity: "critical",
-      title: "İşlem başına limit aşıldı",
-      detail: `İstenen tutar (${amount}) işlem başı limiti (${policy.capPerTx}) aşıyor.`,
+      title: "Per-transaction cap exceeded",
+      detail: `Requested amount (${amount}) exceeds the per-transaction cap (${policy.capPerTx}).`,
     };
   }
   if (policy.spentThisPeriod + BigInt(amount) > policy.capPerDay) {
     return {
       id: "over-per-day-cap",
       severity: "critical",
-      title: "Günlük limit aşıldı",
-      detail: `Bu dönemde harcanan (${policy.spentThisPeriod}) + istenen (${amount}), günlük limiti (${policy.capPerDay}) aşıyor.`,
+      title: "Daily cap exceeded",
+      detail: `Amount spent this period (${policy.spentThisPeriod}) plus requested (${amount}) exceeds the daily cap (${policy.capPerDay}).`,
     };
   }
   return null;

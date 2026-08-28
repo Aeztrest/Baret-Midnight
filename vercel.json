@@ -1,0 +1,6 @@
+{
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @baret-midnight/showcase build",
+  "outputDirectory": "apps/showcase/dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
