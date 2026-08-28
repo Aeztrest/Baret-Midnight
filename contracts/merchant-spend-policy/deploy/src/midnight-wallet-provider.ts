@@ -13,6 +13,8 @@ import type { Logger } from 'pino';
 
 import { getInitialShieldedState } from './wallet-utils.js';
 import { type DustWalletOptions, type EnvironmentConfiguration, FluentWalletBuilder } from '@midnight-ntwrk/testkit-js';
+import { ShieldedAddress } from '@midnight-ntwrk/wallet-sdk-address-format';
+import { getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
 type UnshieldedKeystore = {
   getPublicKey(): unknown;
@@ -94,6 +96,8 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
     logger.info(
       `Your wallet seed is: ${seeds.masterSeed} and your address is: ${initialState.address.coinPublicKeyString()}`,
     );
+    const shieldedAddress = ShieldedAddress.codec.encode(getNetworkId(), initialState.address);
+    logger.info(`Shielded (faucet UI) address: ${shieldedAddress}`);
 
     return new MidnightWalletProvider(
       logger,
