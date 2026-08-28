@@ -1,0 +1,26 @@
+name: ADX probe (real ZK proof generation)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  compile-with-real-proofs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: CPU flags
+        run: grep -o 'adx' /proc/cpuinfo | head -1 && echo "ADX: present" || echo "ADX: NOT present"
+
+      - name: Install Compact toolchain
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Compile contract WITHOUT --skip-zk (real proving keys)
+        working-directory: contracts/merchant-spend-policy
+        run: |
+          rm -rf managed
+          compact compile src/merchant-spend-policy.compact managed/merchant-spend-policy
+          echo "--- generated files ---"
+          find managed -type f
